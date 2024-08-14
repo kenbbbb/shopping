@@ -1,0 +1,72 @@
+create database shopping;
+use shopping;
+-- 創建用戶表
+CREATE TABLE `User` (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `username` VARCHAR(50) NOT NULL UNIQUE,
+    `password` VARCHAR(255) NOT NULL,
+    `email` VARCHAR(100) NOT NULL UNIQUE,
+    `role` ENUM('USER', 'ADMIN') NOT NULL DEFAULT 'USER',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- 創建產品表
+CREATE TABLE `Product` (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `name` VARCHAR(100) NOT NULL,
+    `description` TEXT,
+    `price` DECIMAL(10, 2) NOT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- 創建訂單表
+CREATE TABLE `Order` (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `username` VARCHAR(50) NOT NULL,
+    `status` VARCHAR(50) NOT NULL DEFAULT 'PENDING',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (`username`) REFERENCES `User`(`username`) ON DELETE CASCADE
+);
+
+-- 創建訂單項目表
+CREATE TABLE `OrderItem` (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `order_id` BIGINT NOT NULL,
+    `product_id` BIGINT NOT NULL,
+    `quantity` INT NOT NULL,
+    `price` DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (`order_id`) REFERENCES `Order`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`product_id`) REFERENCES `Product`(`id`) ON DELETE CASCADE
+);
+
+-- 創建購物車表
+CREATE TABLE `Cart` (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `username` VARCHAR(50) NOT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (`username`) REFERENCES `User`(`username`) ON DELETE CASCADE
+);
+
+-- 創建購物車項目表
+CREATE TABLE `CartItem` (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `cart_id` BIGINT NOT NULL,
+    `product_id` BIGINT NOT NULL,
+    `quantity` INT NOT NULL,
+    FOREIGN KEY (`cart_id`) REFERENCES `Cart`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`product_id`) REFERENCES `Product`(`id`) ON DELETE CASCADE
+);
+
+-- 創建庫存表
+CREATE TABLE `Inventory` (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `product_id` BIGINT NOT NULL,
+    `quantity` INT NOT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (`product_id`) REFERENCES `Product`(`id`) ON DELETE CASCADE
+);
